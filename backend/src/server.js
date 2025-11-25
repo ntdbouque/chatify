@@ -1,4 +1,6 @@
 import express from 'express';
+import cookieParser from "cookie-parser";
+
 import {ENV} from './lib/env.js';
 import path from "path";
 
@@ -13,6 +15,8 @@ const __dirname = path.resolve();
 
 
 app.use(express.json()); // body res
+app.use(cookieParser());
+
 app.use('/api/auth', authroutes); 
 app.use('/api/message', messageroutes);
 
