@@ -53,8 +53,13 @@ export const sendMessage = async (req, res) => {
     let imageUrl;
     if (image) {
       // upload base64 image to cloudinary
-      const uploadResponse = await cloudinary.uploader.upload(image);
-      imageUrl = uploadResponse.secure_url;
+      try {
+        const uploadResponse = await cloudinary.uploader.upload(image);
+        imageUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Cloudinary upload error:", uploadError);
+        return res.status(400).json({ message: "Failed to upload image: " + uploadError.message });
+      }
     }
 
     const newMessage = new Message({
