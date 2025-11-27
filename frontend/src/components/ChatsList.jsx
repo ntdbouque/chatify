@@ -1,46 +1,40 @@
+
 import { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 import UsersLoadingSkeleton from "./UsersLoadingSkeleton";
 import NoChatsFound from "./NoChatsFound";
+import { useAuthStore } from "../store/useAuthStore";
 
 function ChatsList() {
-  const { chats, getMyChatPartners, isUsersLoading, setSelectedUser, selectedUser } =
-    useChatStore();
+  const { getMyChatPartners, chats, isUsersLoading, setSelectedUser } = useChatStore();
+  const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
     getMyChatPartners();
   }, [getMyChatPartners]);
 
   if (isUsersLoading) return <UsersLoadingSkeleton />;
+  if (chats.length === 0) return <NoChatsFound />;
 
   return (
-    <div>
-      {chats.length === 0 ? (
-        <NoChatsFound />
-      ) : (
-        chats.map((chat) => (
-          <button
-            key={chat._id}
-            onClick={() => setSelectedUser(chat)}
-            className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
-              selectedUser?._id === chat._id
-                ? "bg-cyan-500/20"
-                : "hover:bg-slate-700/50"
-            }`}
-          >
-            <div className="avatar online">
-              <div className="w-10 rounded-full">
+    <>
+      {chats.map((chat) => (
+        <div
+          key={chat._id}
+          className="bg-cyan-500/10 p-4 rounded-lg cursor-pointer hover:bg-cyan-500/20 transition-colors"
+          onClick={() => setSelectedUser(chat)}
+        >
+          <div className="flex items-center gap-3">
+            <div className={`avatar ${onlineUsers.includes(chat._id) ? "online" : "offline"}`}>
+              <div className="size-12 rounded-full">
                 <img src={chat.profilePic || "/avatar.png"} alt={chat.fullName} />
               </div>
             </div>
-            <div className="flex-1 text-left">
-              <h3 className="text-slate-200 font-medium text-sm">{chat.fullName}</h3>
-              <p className="text-slate-400 text-xs line-clamp-1">{chat.email}</p>
-            </div>
-          </button>
-        ))
-      )}
-    </div>
+            <h4 className="text-slate-200 font-medium truncate">{chat.fullName}</h4>
+          </div>
+        </div>
+      ))}
+    </>
   );
 }
 export default ChatsList;
